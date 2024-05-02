@@ -30,7 +30,6 @@ export class VinylsController {
 
   @Get()
   async getVinyls(@Req() req: Request, @Query() query: QueryParams) {
-    //TODO: ADD ALL NEED INFO
     return this.vinylsService.getAllVinyls(req, query);
   }
 

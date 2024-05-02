@@ -43,7 +43,6 @@ export class UsersService {
 
   async getUserFromReq(req: Request) {
     const decodedToken = await this.decodeToken(req);
-
     return this.findOne(decodedToken.username);
   }
 
@@ -190,9 +189,9 @@ export class UsersService {
       if (user?.roles.some((role) => role === 'ADMIN')) {
         return user;
       }
-      user?.roles.push('ADMIN');
+      user.roles.push('ADMIN');
 
-      user?.save();
+      user.save();
 
       this.logModel.create({
         message: `User ${user.firstName}  ${user.lastName} is now ADMIN! Current date: ${new Date()}`,

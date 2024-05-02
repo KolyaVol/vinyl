@@ -194,7 +194,7 @@ export class VinylsService {
     const vinyl = await this.vinylModel.findOne({ _id: query.vinylId });
     if (user && vinyl) {
       return this.Stripe.checkout.sessions.create({
-        success_url: `http://0.0.0.0:10000/vinyls/getVinyl?vinylId=${vinyl._id}&userId=${user._id}`,
+        success_url: `${this.configService.get('HOST')}vinyls/getVinyl?vinylId=${vinyl._id}&userId=${user._id}`,
         customer: user.stripeId,
         line_items: [
           {
