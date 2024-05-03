@@ -15,8 +15,8 @@ export class UsersService {
     @InjectModel(UserMongo.name)
     private userModel: Model<UserMongo>,
     @InjectModel(LogMongo.name)
-
     private logModel: Model<LogMongo>,
+
     private jwtService: JwtService,
     private stripeService: StripeService,
   ) {}

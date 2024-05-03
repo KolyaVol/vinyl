@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import mongoose from 'mongoose';
 import { UserMongo } from 'src/schemas/user.schema';
 import { VinylMongo } from 'src/schemas/vinyl.schema';
 import { User, Vinyl } from 'src/types';
@@ -43,20 +42,6 @@ export class StripeService {
     });
   }
 
-  async createStripeCheckout(user: UserMongo, vinyl: VinylMongo) {
-    return this.Stripe.checkout.sessions.create({
-      success_url: `${this.configService.get('HOST')}vinyls/getVinyl?vinylId=${vinyl._id}&userId=${user._id}`,
-      customer: user.stripeId,
-      line_items: [
-        {
-          price: vinyl.stripePriceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-    });
-  }
-
   async updateStripeVinyl(vinyl: Vinyl, updateVinylDto: UpdateVinylDto) {
     if (vinyl) {
       const price = await this.Stripe.prices.create({
@@ -83,5 +68,19 @@ export class StripeService {
       return this.Stripe.products.update(vinyl.stripeProdId, { active: false });
     }
     throw new HttpException('Can not find the vinyl', 400);
+  }
+
+  async createStripeCheckout(user: UserMongo, vinyl: VinylMongo) {
+    return this.Stripe.checkout.sessions.create({
+      success_url: `${this.configService.get('HOST')}vinyls/getVinyl?vinylId=${vinyl._id}&userId=${user._id}`,
+      customer: user.stripeId,
+      line_items: [
+        {
+          price: vinyl.stripePriceId,
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+    });
   }
 }
