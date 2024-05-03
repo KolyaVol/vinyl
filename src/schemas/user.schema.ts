@@ -34,23 +34,24 @@ export class UserMongo {
   @Prop({
     default: ['USER'],
   })
-  roles: string[];
+  roles?: string[];
 
   @Prop({
     default: [],
   })
-  jwtWhiteList: string[];
+  jwtWhiteList?: string[];
 
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'VinylMongo' }],
   })
-  vinyls: VinylMongo[];
+  vinyls?: VinylMongo[];
 
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ReviewMongo' }],
   })
-  reviews: ReviewMongo[];
-  _id: { type: mongoose.Schema.Types.ObjectId; ref: 'UserMongo' };
+  reviews?: ReviewMongo[];
+
+  _id?: { type: mongoose.Schema.Types.ObjectId; ref: 'UserMongo' };
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserMongo);

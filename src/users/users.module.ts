@@ -7,6 +7,7 @@ import { UserMongo, UserSchema } from 'src/schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { GoogleStrategy } from 'src/auth/strategies/google.strategy';
 import { LogMongo, LogSchema } from 'src/schemas/log.schema';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { LogMongo, LogSchema } from 'src/schemas/log.schema';
     ]),
   ],
   controllers: [UsersController],
-  providers: [UsersService, JwtService, GoogleStrategy],
+  providers: [UsersService, JwtService, GoogleStrategy, StripeService],
   exports: [UsersService],
 })
 export class UsersModule {}

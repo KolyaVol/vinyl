@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { VinylsModule } from './vinyls/vinyls.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ReviewsModule } from './reviews/reviews.module';
+import { StripeModule } from './stripe/stripe.module';
 import configuration from './configuration';
 
 @Module({
@@ -23,6 +24,7 @@ import configuration from './configuration';
       }),
     }),
     ReviewsModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

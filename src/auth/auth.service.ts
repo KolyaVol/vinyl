@@ -47,7 +47,7 @@ export class AuthService {
         username: email,
         roles: user.roles,
       });
-      user.jwtWhiteList.push(userToken);
+      user.jwtWhiteList?.push(userToken);
       user.save();
       return {
         message: 'Login successful',
@@ -61,7 +61,7 @@ export class AuthService {
       picture,
     );
     const token = this.jwtService.sign({ username: email, role: 'USER' });
-    createdUser.jwtWhiteList.push(token);
+    createdUser.jwtWhiteList?.push(token);
     createdUser.save();
     return {
       message: 'Login successful',

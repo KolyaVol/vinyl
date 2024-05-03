@@ -7,28 +7,24 @@ import { Request } from 'supertest';
 import { VinylDto } from './dto/vinyl.dto';
 import { UpdateVinylDto } from './dto/update-vinyl.dto';
 import nodemailer from 'nodemailer';
-import stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { QueryParams } from 'src/types';
 import { UserMongo } from 'src/schemas/user.schema';
 import { LogMongo } from 'src/schemas/log.schema';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class VinylsService {
-  Stripe: stripe;
   constructor(
-    private configService: ConfigService,
-    private usersSerivce: UsersService,
-
     @InjectModel(VinylMongo.name)
     private vinylModel: Model<VinylMongo>,
     @InjectModel(LogMongo.name)
     private logModel: Model<LogMongo>,
-  ) {
-    this.Stripe = new stripe(
-      configService.get<string>('STRIPE_API_KEY') as string,
-    );
-  }
+
+    private configService: ConfigService,
+    private usersSerivce: UsersService,
+    private stripeService: StripeService,
+  ) {}
 
   private transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -46,7 +42,7 @@ export class VinylsService {
 
   async createVinyl(vinylDto: VinylDto) {
     if (vinylDto) {
-      const stripeVinyl = await this.createStripeVinyl(vinylDto);
+      const stripeVinyl = await this.stripeService.createStripeVinyl(vinylDto);
 
       const vinyl = new this.vinylModel({
         stripePriceId: stripeVinyl.default_price,
@@ -66,16 +62,6 @@ export class VinylsService {
       return vinyl;
     }
     throw new HttpException('Invalid data', 400);
-  }
-
-  async createStripeVinyl(vinylDto: VinylDto) {
-    return this.Stripe.products.create({
-      name: vinylDto.name,
-      default_price_data: {
-        currency: 'usd',
-        unit_amount: Math.ceil(vinylDto.price * 100),
-      },
-    });
   }
 
   async getAllVinyls(req: Request, query: QueryParams) {
@@ -128,7 +114,11 @@ export class VinylsService {
   }
 
   async updateVinyl(updateVinylDto: UpdateVinylDto) {
-    const stripeVinyl = await this.updateStripeVinyl(updateVinylDto);
+    const vinyl = await this.vinylModel.findById(updateVinylDto._id);
+    const stripeVinyl = await this.stripeService.updateStripeVinyl(
+      vinyl,
+      updateVinylDto,
+    );
 
     this.logModel.create({
       message: `Vinyl with id ${updateVinylDto._id} updated at ${new Date()} with data: ${updateVinylDto}`,
@@ -151,59 +141,20 @@ export class VinylsService {
     );
   }
 
-  async updateStripeVinyl(updateVinylDto: UpdateVinylDto) {
-    const vinyl = await this.vinylModel.findById(updateVinylDto._id);
-    if (vinyl) {
-      const price = await this.Stripe.prices.create({
-        currency: 'usd',
-        unit_amount: updateVinylDto.price * 100,
-        product: vinyl.stripeProdId,
-      });
-
-      const product = await this.Stripe.products.update(vinyl.stripeProdId, {
-        name: updateVinylDto.name,
-        default_price: price.id,
-      });
-
-      if (!product) {
-        throw new HttpException('Can not update stripe product', 400);
-      }
-      return product;
-    }
-    throw new HttpException('Can not find nonexistent product', 400);
-  }
-
   async deleteVinyl(reqBody: { _id: string }) {
-    await this.deleteStripeVinyl(reqBody._id);
+    const vinyl = await this.vinylModel.findById(reqBody._id);
+    await this.stripeService.deleteStripeVinyl(vinyl);
     this.logModel.create({
       message: `Vinyl with id ${reqBody._id} deleted at ${new Date()}`,
     });
     return this.vinylModel.deleteOne({ _id: reqBody._id });
   }
 
-  async deleteStripeVinyl(id: string) {
-    const vinyl = await this.vinylModel.findById(id);
-    if (vinyl) {
-      return this.Stripe.products.update(vinyl.stripeProdId, { active: false });
-    }
-    throw new HttpException('Can not find the vinyl', 400);
-  }
-
   async bueVinyl(req: Request, query: { userId: string; vinylId: string }) {
     const user = await this.usersSerivce.findOneById(query.userId);
     const vinyl = await this.vinylModel.findOne({ _id: query.vinylId });
     if (user && vinyl) {
-      return this.Stripe.checkout.sessions.create({
-        success_url: `${this.configService.get('HOST')}vinyls/getVinyl?vinylId=${vinyl._id}&userId=${user._id}`,
-        customer: user.stripeId,
-        line_items: [
-          {
-            price: vinyl.stripePriceId,
-            quantity: 1,
-          },
-        ],
-        mode: 'payment',
-      });
+      return this.stripeService.createStripeCheckout(user, vinyl);
     }
     throw new HttpException('Can not find user or product', 400);
   }
@@ -212,7 +163,7 @@ export class VinylsService {
     const user = await this.usersSerivce.findOneById(query.userId);
     const vinyl = await this.vinylModel.findOne({ _id: query.vinylId });
     if (user && vinyl) {
-      user.vinyls.push(vinyl);
+      user.vinyls?.push(vinyl);
       user.save();
 
       this.transporter.sendMail({

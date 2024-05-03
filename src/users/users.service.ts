@@ -3,27 +3,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserMongo } from 'src/schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from 'src/types';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'supertest';
 import { UpdateUserDto } from './dto/update-user.dto';
-import stripe from 'stripe';
-import { ConfigService } from '@nestjs/config';
 import { LogMongo } from 'src/schemas/log.schema';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class UsersService {
-  Stripe: stripe = new stripe(
-    this.configService.get<string>('STRIPE_API_KEY') as string,
-  );
   constructor(
     @InjectModel(UserMongo.name)
     private userModel: Model<UserMongo>,
     @InjectModel(LogMongo.name)
-    private logModel: Model<LogMongo>,
 
-    private configService: ConfigService,
+    private logModel: Model<LogMongo>,
     private jwtService: JwtService,
+    private stripeService: StripeService,
   ) {}
 
   async decodeToken(req: Request) {
@@ -52,12 +47,12 @@ export class UsersService {
     if (await this.findOne(email)) {
       return new HttpException('Email already in use', 409);
     }
-    const stripeUser = await this.createStripeUser(
+    const stripeUser = await this.stripeService.createStripeUser(
       firstName + ' ' + lastName,
       email,
     );
 
-    const user: User = {
+    const user: UserMongo = {
       stripeId: stripeUser.id,
       email,
       password,
@@ -79,7 +74,7 @@ export class UsersService {
   }
 
   async createGoogleUser(email: string, name: string, picture: string) {
-    const stripeUser = await this.createStripeUser(name, email);
+    const stripeUser = await this.stripeService.createStripeUser(name, email);
     const createdUser = new this.userModel({
       stripeId: stripeUser.id,
       email: email,
@@ -95,13 +90,6 @@ export class UsersService {
     });
 
     return createdUser;
-  }
-
-  async createStripeUser(name: string, email: string) {
-    return this.Stripe.customers.create({
-      name: name,
-      email: email,
-    });
   }
 
   async getUser(req: Request) {
@@ -130,25 +118,22 @@ export class UsersService {
     const token = (await req).headers.authorization?.split(' ')[1];
     const user = await this.getUserFromReq(req);
 
-    if (!user) {
-      throw new Error('User not found');
+    if (user) {
+      const updatedJwtWhiteList = user.jwtWhiteList?.filter((t) => t !== token);
+
+      user.jwtWhiteList = updatedJwtWhiteList;
+
+      await user.save();
+      return 'User logged out';
     }
-
-    const updatedJwtWhiteList = user.jwtWhiteList.filter((t) => t !== token);
-
-    user.jwtWhiteList = updatedJwtWhiteList;
-
-    await user.save();
-    return 'User logged out';
+    throw new Error('User not found');
   }
 
   async updateUser(req: Request, updateDto: UpdateUserDto) {
     const user = await this.getUserFromReq(req);
 
     if (user) {
-      await this.Stripe.customers.update(user.stripeId, {
-        name: updateDto.firstName + ' ' + updateDto.lastName,
-      });
+      await this.stripeService.updateStripeUser(user, updateDto);
 
       this.logModel.create({
         message: `User ${user.firstName}  ${user.lastName} updated at ${new Date()} with this Data: ${updateDto}`,
@@ -173,7 +158,7 @@ export class UsersService {
   async deleteUser(req: Request) {
     const user = await this.getUserFromReq(req);
     if (user) {
-      await this.Stripe.customers.del(user.stripeId);
+      await this.stripeService.deleteStripeUser(user);
 
       this.logModel.create({
         message: `User ${user.firstName}  ${user.lastName} deleted at ${new Date()}`,
@@ -186,10 +171,10 @@ export class UsersService {
   async addAdminRole(req: Request) {
     const user = await this.getUserFromReq(req);
     if (user && (await req).body.password === 'admin1234') {
-      if (user?.roles.some((role) => role === 'ADMIN')) {
+      if (user.roles?.some((role) => role === 'ADMIN')) {
         return user;
       }
-      user.roles.push('ADMIN');
+      user.roles?.push('ADMIN');
 
       user.save();
 

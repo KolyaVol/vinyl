@@ -41,6 +41,8 @@ export class VinylMongo {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ReviewMongo' }],
   })
   reviews: ReviewMongo[];
+
+  _id: { type: mongoose.Schema.Types.ObjectId; ref: 'VinylMongo' };
 }
 
 export const VinylSchema = SchemaFactory.createForClass(VinylMongo);

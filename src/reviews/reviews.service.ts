@@ -6,21 +6,20 @@ import { Request } from 'supertest';
 import { ReviewMongo } from 'src/schemas/review.schema';
 import { ReviewDto } from './dto/review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import stripe from 'stripe';
 import { VinylsService } from 'src/vinyls/vinyls.service';
 import { ObjectId } from 'mongodb';
 import { LogMongo } from 'src/schemas/log.schema';
 
 @Injectable()
 export class ReviewsService {
-  Stripe: stripe;
   constructor(
-    private usersSerivce: UsersService,
-    private vinylsSerivce: VinylsService,
     @InjectModel(ReviewMongo.name)
     private reviewModel: Model<ReviewMongo>,
     @InjectModel(LogMongo.name)
     private logModel: Model<LogMongo>,
+
+    private usersSerivce: UsersService,
+    private vinylsSerivce: VinylsService,
   ) {}
 
   async createReview(req: Request, reviewDto: ReviewDto) {
@@ -51,7 +50,7 @@ export class ReviewsService {
       vinyl.reviews.push(review);
       await vinyl.save();
 
-      user.reviews.push(review);
+      user.reviews?.push(review);
       user.save();
 
       this.logModel.create({

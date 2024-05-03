@@ -8,6 +8,7 @@ import { ReviewsController } from './reviews.controller';
 import { ReviewsService } from './reviews.service';
 import { VinylsService } from 'src/vinyls/vinyls.service';
 import { LogMongo, LogSchema } from 'src/schemas/log.schema';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { LogMongo, LogSchema } from 'src/schemas/log.schema';
     ]),
   ],
   controllers: [ReviewsController],
-  providers: [JwtService, ReviewsService, VinylsService],
+  providers: [JwtService, ReviewsService, VinylsService, StripeService],
 })
 export class ReviewsModule {}
