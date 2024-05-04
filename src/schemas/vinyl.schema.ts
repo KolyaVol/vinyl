@@ -13,6 +13,9 @@ export class VinylMongo {
   @Prop()
   stripeProdId: string;
 
+  @Prop({ default: null })
+  discogProdId: string;
+
   @Prop({ required: true })
   price: string;
 
@@ -22,7 +25,7 @@ export class VinylMongo {
   @Prop({ required: true })
   author: string;
 
-  @Prop({ required: true })
+  @Prop()
   description: string;
 
   @Prop()
@@ -33,6 +36,12 @@ export class VinylMongo {
 
   @Prop({ default: 0 })
   amountOfScores: number;
+
+  @Prop({ default: 0 })
+  averageDiscogScore: number;
+
+  @Prop({ default: 0 })
+  amountOfDiscogScores: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'UserMongo' })
   usersId: UserMongo[];

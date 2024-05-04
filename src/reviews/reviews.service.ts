@@ -9,6 +9,7 @@ import { UpdateReviewDto } from './dto/update-review.dto';
 import { VinylsService } from 'src/vinyls/vinyls.service';
 import { ObjectId } from 'mongodb';
 import { LogMongo } from 'src/schemas/log.schema';
+import { DiscogsService } from 'src/discogs/discogs.service';
 
 @Injectable()
 export class ReviewsService {
@@ -20,6 +21,7 @@ export class ReviewsService {
 
     private usersSerivce: UsersService,
     private vinylsSerivce: VinylsService,
+    private discogsSerivce: DiscogsService,
   ) {}
 
   async createReview(req: Request, reviewDto: ReviewDto) {
@@ -39,11 +41,15 @@ export class ReviewsService {
         comment: reviewDto.comment,
         score: reviewDto.score,
       });
+
       review.save();
+
       const { amountOfScores, averageScore } = vinyl;
       const newScore =
         (+averageScore * +amountOfScores + +reviewDto.score) /
         (+amountOfScores + 1);
+
+      await this.discogsSerivce.updateDiscogScores(vinyl);
 
       vinyl.averageScore = +newScore.toFixed(2);
       vinyl.amountOfScores += 1;
@@ -85,6 +91,8 @@ export class ReviewsService {
         throw new HttpException('Wrong score', 400);
       }
 
+      await this.discogsSerivce.updateDiscogScores(vinyl);
+
       vinyl.averageScore = +newAverageScore.toFixed(2);
       await vinyl.save();
 
@@ -123,8 +131,10 @@ export class ReviewsService {
         : 0;
 
       vinyl.averageScore = +newAverageScore.toFixed(2);
-
       vinyl.amountOfScores -= 1;
+
+      await this.discogsSerivce.updateDiscogScores(vinyl);
+
       await vinyl.save();
 
       this.logModel.create({

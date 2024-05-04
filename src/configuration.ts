@@ -6,4 +6,6 @@ export default registerAs('app', () => ({
   PASSWORD: process.env.PASSWORD,
   MAIL: process.env.MAIL,
   HOST: process.env.HOST,
+  DISCOGS_KEY: process.env.DISCOGS_KEY,
+  DISCOGS_SECRET: process.env.DISCOGS_SECRET,
 }));

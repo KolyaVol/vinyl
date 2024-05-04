@@ -8,7 +8,10 @@ import { VinylsModule } from './vinyls/vinyls.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ReviewsModule } from './reviews/reviews.module';
 import { StripeModule } from './stripe/stripe.module';
+import { DiscogsModule } from './discogs/discogs.module';
 import configuration from './configuration';
+import { LogMongo, LogSchema } from './schemas/log.schema';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -23,10 +26,13 @@ import configuration from './configuration';
         uri: configService.get<string>('MONGO_DATA'),
       }),
     }),
+
+    MongooseModule.forFeature([{ name: LogMongo.name, schema: LogSchema }]),
     ReviewsModule,
     StripeModule,
+    DiscogsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtService],
 })
 export class AppModule {}

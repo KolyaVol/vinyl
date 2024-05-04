@@ -23,6 +23,16 @@ export type Vinyl =
       }>)
   | null;
 
+export type DiscogData = {
+  discogProdId: string;
+  name: string;
+  author: string;
+  price: string;
+  image: string;
+  averageDiscogScore: string;
+  amountOfDiscogScores: string;
+};
+
 export type QueryParams = {
   orderBy?: string;
   order?: string;

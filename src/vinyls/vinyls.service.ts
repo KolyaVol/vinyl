@@ -8,10 +8,12 @@ import { VinylDto } from './dto/vinyl.dto';
 import { UpdateVinylDto } from './dto/update-vinyl.dto';
 import nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
-import { QueryParams } from 'src/types';
+import { QueryParams, Vinyl } from 'src/types';
 import { UserMongo } from 'src/schemas/user.schema';
 import { LogMongo } from 'src/schemas/log.schema';
 import { StripeService } from 'src/stripe/stripe.service';
+import { DiscogsService } from 'src/discogs/discogs.service';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class VinylsService {
@@ -24,6 +26,7 @@ export class VinylsService {
     private configService: ConfigService,
     private usersSerivce: UsersService,
     private stripeService: StripeService,
+    private discogsService: DiscogsService,
   ) {}
 
   private transporter = nodemailer.createTransport({
@@ -64,11 +67,43 @@ export class VinylsService {
     throw new HttpException('Invalid data', 400);
   }
 
+  async createVinylFromDiscog(recordId: string) {
+    if (recordId) {
+      const recordData = await this.discogsService.getRecord({ id: recordId });
+      const stripeVinyl = await this.stripeService.createStripeVinyl({
+        name: recordData.name,
+        price: recordData.price,
+      });
+
+      const vinyl = new this.vinylModel({
+        stripePriceId: stripeVinyl.default_price,
+        stripeProdId: stripeVinyl.id,
+        discogProdId: recordId,
+        author: recordData.author,
+        name: recordData.name,
+        price: recordData.price,
+        description: 'Coming soon...',
+        image: recordData.image,
+        averageDiscogScore: recordData.averageDiscogScore,
+        amountOfDiscogScores: recordData.amountOfDiscogScores,
+      });
+      vinyl.save();
+
+      this.logModel.create({
+        message: `Vinyl ${recordData.name} ${recordData.author} created at ${new Date()}`,
+      });
+
+      return vinyl;
+    }
+    throw new HttpException('Invalid data', 400);
+  }
+
   async getAllVinyls(req: Request, query: QueryParams) {
     let user: null | UserMongo = null;
     if ((await req).headers.authorization) {
       user = await this.usersSerivce.getUserFromReq(req);
     }
+    await this.updateAllDiscogsVinyls();
     const { orderBy, order, filterName, filterAuthor, limit, offset } = query;
 
     let filterSettings = {};
@@ -139,6 +174,48 @@ export class VinylsService {
         new: true,
       },
     );
+  }
+
+  async updateDiscogsVinyl(vinylId: ObjectId) {
+    const vinyl = await this.vinylModel.findById(vinylId);
+
+    const recordData = await this.discogsService.getRecord({
+      id: vinyl?.discogProdId as string,
+    });
+
+    const stripeVinyl = await this.stripeService.updateStripeVinyl(vinyl, {
+      name: recordData.name,
+      price: recordData.price,
+    });
+
+    this.logModel.create({
+      message: `Vinyl with id ${vinylId} updated at ${new Date()} with data: ${recordData}`,
+    });
+
+    return this.vinylModel.findOneAndUpdate(
+      { _id: vinylId },
+      {
+        stripePriceId: stripeVinyl.default_price,
+        stripeProdId: stripeVinyl.id,
+        author: recordData.author,
+        name: recordData.name,
+        price: recordData.price,
+        description: 'Coming soon...',
+        image: recordData.image,
+      },
+      {
+        new: true,
+      },
+    );
+  }
+
+  async updateAllDiscogsVinyls() {
+    const vinyls = await this.vinylModel.find({ discogProdId: { $ne: null } });
+    vinyls.forEach((vinyl: Vinyl) => {
+      if (vinyl) {
+        this.updateDiscogsVinyl(vinyl._id as unknown as ObjectId);
+      }
+    });
   }
 
   async deleteVinyl(reqBody: { _id: string }) {

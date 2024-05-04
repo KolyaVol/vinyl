@@ -9,6 +9,7 @@ import { ReviewsService } from './reviews.service';
 import { VinylsService } from 'src/vinyls/vinyls.service';
 import { LogMongo, LogSchema } from 'src/schemas/log.schema';
 import { StripeService } from 'src/stripe/stripe.service';
+import { DiscogsService } from 'src/discogs/discogs.service';
 
 @Module({
   imports: [
@@ -20,6 +21,12 @@ import { StripeService } from 'src/stripe/stripe.service';
     ]),
   ],
   controllers: [ReviewsController],
-  providers: [JwtService, ReviewsService, VinylsService, StripeService],
+  providers: [
+    JwtService,
+    ReviewsService,
+    VinylsService,
+    StripeService,
+    DiscogsService,
+  ],
 })
 export class ReviewsModule {}

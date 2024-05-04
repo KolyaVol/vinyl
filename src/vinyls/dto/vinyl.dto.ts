@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Length } from 'class-validator';
+import { IsNumber, IsString, Length, Min } from 'class-validator';
 
 export class VinylDto {
   @IsString({ message: 'Must be a string' })
@@ -15,6 +15,7 @@ export class VinylDto {
   author: string;
 
   @IsNumber()
+  @Min(0.01)
   price: number;
 
   @IsString({ message: 'Must be a string' })

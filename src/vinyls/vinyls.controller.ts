@@ -17,6 +17,8 @@ import { JwtWhiteGuard } from 'src/auth/guards/jwtWhiteList/jwtWhite.guard';
 import { RoleGuard } from 'src/auth/guards/role/role.guard';
 import { Request } from 'supertest';
 import { QueryParams } from 'src/types';
+import { query } from 'express';
+import { ObjectId } from 'mongodb';
 
 @Controller('vinyls')
 export class VinylsController {
@@ -28,6 +30,12 @@ export class VinylsController {
     return this.vinylsService.createVinyl(vinylDto);
   }
 
+  @Post('/create/discog')
+  @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
+  async createVinylFromDiscog(@Query() query: { recordId: string }) {
+    return this.vinylsService.createVinylFromDiscog(query.recordId);
+  }
+
   @Get()
   async getVinyls(@Req() req: Request, @Query() query: QueryParams) {
     return this.vinylsService.getAllVinyls(req, query);
@@ -37,6 +45,12 @@ export class VinylsController {
   @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
   async updateVinyl(@Body() updateVinylDto: UpdateVinylDto) {
     return this.vinylsService.updateVinyl(updateVinylDto);
+  }
+
+  @Patch('/update/discogs')
+  @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
+  async updateDiscogsVinyl(@Query() query: { id: ObjectId }) {
+    return this.vinylsService.updateDiscogsVinyl(query.id);
   }
 
   @Delete('/delete')

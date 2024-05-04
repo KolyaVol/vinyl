@@ -8,6 +8,7 @@ import { ReviewMongo, ReviewSchema } from 'src/schemas/review.schema';
 import { JwtService } from '@nestjs/jwt';
 import { LogMongo, LogSchema } from 'src/schemas/log.schema';
 import { StripeService } from 'src/stripe/stripe.service';
+import { DiscogsService } from 'src/discogs/discogs.service';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { StripeService } from 'src/stripe/stripe.service';
     ]),
   ],
   controllers: [VinylsController],
-  providers: [VinylsService, JwtService, StripeService],
+  providers: [VinylsService, JwtService, StripeService, DiscogsService],
 })
 export class VinylsModule {}

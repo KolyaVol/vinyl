@@ -32,21 +32,26 @@ export class StripeService {
     return this.Stripe.customers.del(user.stripeId);
   }
 
-  async createStripeVinyl(vinylDto: VinylDto) {
+  async createStripeVinyl(
+    vinylDto: VinylDto | { name: string; price: string },
+  ) {
     return this.Stripe.products.create({
       name: vinylDto.name,
       default_price_data: {
         currency: 'usd',
-        unit_amount: Math.ceil(vinylDto.price * 100),
+        unit_amount: Math.ceil(+vinylDto.price * 100),
       },
     });
   }
 
-  async updateStripeVinyl(vinyl: Vinyl, updateVinylDto: UpdateVinylDto) {
+  async updateStripeVinyl(
+    vinyl: Vinyl,
+    updateVinylDto: UpdateVinylDto | { price: string; name: string },
+  ) {
     if (vinyl) {
       const price = await this.Stripe.prices.create({
         currency: 'usd',
-        unit_amount: updateVinylDto.price * 100,
+        unit_amount: +updateVinylDto.price * 100,
         product: vinyl.stripeProdId,
       });
 
