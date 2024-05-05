@@ -199,7 +199,7 @@ export class VinylsService {
         stripeProdId: stripeVinyl.id,
         author: recordData.author,
         name: recordData.name,
-        price: recordData.price,
+        price: Number(recordData.price).toFixed(2),
         description: 'Coming soon...',
         image: recordData.image,
       },
