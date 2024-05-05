@@ -132,14 +132,14 @@ export class VinylsService {
       .skip(offset || 0);
 
     const result = vinyls.map((vinyl) => {
-      let firstAnotherReview;
+      let firstAnotherReview = null;
       if (vinyl.reviews[0]) {
-        firstAnotherReview = vinyl.reviews[0];
         if (user) {
           firstAnotherReview = vinyl.reviews.find(
-            (review) => review.userId !== user._id,
+            (review) =>
+              JSON.stringify(review.userId) !== JSON.stringify(user._id),
           );
-        }
+        } else firstAnotherReview = vinyl.reviews[0];
       }
 
       return { vinyl, firstAnotherReview };
