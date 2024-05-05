@@ -17,7 +17,6 @@ import { JwtWhiteGuard } from 'src/auth/guards/jwtWhiteList/jwtWhite.guard';
 import { RoleGuard } from 'src/auth/guards/role/role.guard';
 import { Request } from 'supertest';
 import { QueryParams } from 'src/types';
-import { query } from 'express';
 import { ObjectId } from 'mongodb';
 
 @Controller('vinyls')
