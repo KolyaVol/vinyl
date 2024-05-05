@@ -8,6 +8,8 @@ import {
   Query,
   Req,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { VinylsService } from './vinyls.service';
 import { VinylDto } from './dto/vinyl.dto';
@@ -24,6 +26,7 @@ export class VinylsController {
   constructor(private vinylsService: VinylsService) {}
 
   @Post('/create')
+  @UsePipes(new ValidationPipe())
   @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
   async createVinyl(@Body() vinylDto: VinylDto) {
     return this.vinylsService.createVinyl(vinylDto);
@@ -41,6 +44,7 @@ export class VinylsController {
   }
 
   @Patch('/update')
+  @UsePipes(new ValidationPipe())
   @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
   async updateVinyl(@Body() updateVinylDto: UpdateVinylDto) {
     return this.vinylsService.updateVinyl(updateVinylDto);

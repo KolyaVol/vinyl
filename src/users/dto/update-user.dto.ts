@@ -1,4 +1,4 @@
-import { IsDate, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString({ message: 'Must be a string' })
@@ -14,7 +14,7 @@ export class UpdateUserDto {
   })
   lastName: string;
 
-  @IsDate({ message: 'Must be a Date' })
+  @IsString({ message: 'Must be a string' })
   birthDate: Date;
 
   @IsString({ message: 'Must be a string' })

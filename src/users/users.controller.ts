@@ -7,6 +7,8 @@ import {
   Post,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AuthService } from 'src/auth/auth.service';
@@ -26,11 +28,13 @@ export class UsersController {
   ) {}
 
   @Post('/register')
+  @UsePipes(new ValidationPipe())
   async createUser(@Body() userDto: CreateUserDto) {
     return this.usersService.createUser(userDto);
   }
 
   @Post('/login')
+  @UsePipes(new ValidationPipe())
   async loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(
       this.usersService.findOne(loginUserDto.email),
@@ -67,6 +71,7 @@ export class UsersController {
 
   @Patch('/update')
   @UseGuards(JwtAuthGuard, JwtWhiteGuard)
+  @UsePipes(new ValidationPipe())
   async updateUser(@Request() req: Req, @Body() updateDto: UpdateUserDto) {
     return this.usersService.updateUser(req, updateDto);
   }

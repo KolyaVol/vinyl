@@ -8,6 +8,8 @@ import {
   Query,
   Req,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ReviewDto } from './dto/review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -23,6 +25,7 @@ export class ReviewsController {
   constructor(private reviewService: ReviewsService) {}
 
   @Post('/review/create')
+  @UsePipes(new ValidationPipe())
   @UseGuards(JwtAuthGuard, JwtWhiteGuard)
   async createReview(@Req() req: Request, @Body() reviewDto: ReviewDto) {
     return this.reviewService.createReview(req, reviewDto);
@@ -37,6 +40,7 @@ export class ReviewsController {
   }
 
   @Patch('/review/update')
+  @UsePipes(new ValidationPipe())
   @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
   async updateReview(@Body() updateReviewDto: UpdateReviewDto) {
     return this.reviewService.updateReview(updateReviewDto);

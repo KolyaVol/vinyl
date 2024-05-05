@@ -1,4 +1,4 @@
-import { IsDate, IsEmail, IsString, Length } from 'class-validator';
+import { IsEmail, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
   @IsString({ message: 'Must be a string' })
@@ -24,15 +24,15 @@ export class CreateUserDto {
   })
   lastName: string;
 
-  @IsDate({ message: 'Must be a date' })
+  @IsString({ message: 'Must be a string' })
   @Length(2, 100, {
-    message: 'The last name must be at least 2 and no more than 100 characters',
+    message: 'The birthDate must be at least 2 and no more than 100 characters',
   })
   birthDate: Date;
 
   @IsString({ message: 'Must be a string' })
   @Length(2, 100, {
-    message: 'The last name must be at least 2 and no more than 100 characters',
+    message: 'The avatar must be at least 2 and no more than 100 characters',
   })
   avatar: string;
 }
