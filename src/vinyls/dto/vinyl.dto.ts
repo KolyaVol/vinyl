@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Length, Min } from 'class-validator';
+import { IsString, IsUrl, Length } from 'class-validator';
 
 export class VinylDto {
   @IsString({ message: 'Must be a string' })
@@ -14,9 +14,8 @@ export class VinylDto {
   })
   author: string;
 
-  @IsNumber()
-  @Min(0.01)
-  price: number;
+  @IsString()
+  price: string;
 
   @IsString({ message: 'Must be a string' })
   @Length(2, 100, {
@@ -25,9 +24,6 @@ export class VinylDto {
   })
   description: string;
 
-  @IsString({ message: 'Must be a string' })
-  @Length(2, 100, {
-    message: 'The image must be at least 2 and no more than 100 characters',
-  })
+  @IsUrl()
   image: string;
 }

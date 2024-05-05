@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Length } from 'class-validator';
+import { IsString, IsUrl, Length } from 'class-validator';
 import { ObjectId } from 'mongoose';
 
 export class UpdateVinylDto {
@@ -21,8 +21,8 @@ export class UpdateVinylDto {
   })
   author: string;
 
-  @IsNumber()
-  price: number;
+  @IsString()
+  price: string;
 
   @IsString({ message: 'Must be a string' })
   @Length(2, 100, {
@@ -31,9 +31,6 @@ export class UpdateVinylDto {
   })
   description: string;
 
-  @IsString({ message: 'Must be a string' })
-  @Length(2, 100, {
-    message: 'The image must be at least 2 and no more than 100 characters',
-  })
+  @IsUrl()
   image: string;
 }
