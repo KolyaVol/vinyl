@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Length, Max, Min } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 import mongoose from 'mongoose';
 
 export class ReviewDto {
@@ -16,8 +16,6 @@ export class ReviewDto {
   })
   comment: string;
 
-  @IsNumber()
-  @Min(0, { message: 'Must be a number  greater or equal to zero' })
-  @Max(5, { message: 'Must be a number less or equal to five' })
-  score: number;
+  @IsString()
+  score: string;
 }

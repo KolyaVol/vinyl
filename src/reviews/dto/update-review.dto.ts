@@ -1,4 +1,4 @@
-import { IsNumber, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
 export class UpdateReviewDto {
   @IsString({ message: 'Must be a string' })
@@ -13,6 +13,6 @@ export class UpdateReviewDto {
   })
   comment: string;
 
-  @IsNumber()
+  @IsString()
   score: number;
 }

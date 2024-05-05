@@ -35,6 +35,10 @@ export class ReviewsService {
       if (isUserAlreadyRewiewed) {
         throw new HttpException('Already reviewed', 400);
       }
+
+      if (!(+reviewDto.score >= 0 && +reviewDto.score <= 5)) {
+        throw new HttpException('Score must be a number between 0 and 5', 400);
+      }
       const review = new this.reviewModel({
         userId: user._id,
         vinylId: reviewDto.vinylId,
@@ -80,6 +84,9 @@ export class ReviewsService {
 
     const vinyl = await this.vinylsSerivce.findById(review?.vinylId);
     if (review && vinyl) {
+      if (!(+updateReviewDto.score >= 0 && +updateReviewDto.score <= 5)) {
+        throw new HttpException('Score must be a number between 0 and 5', 400);
+      }
       const prevScore = review.score;
       const newScore = updateReviewDto.score;
 
