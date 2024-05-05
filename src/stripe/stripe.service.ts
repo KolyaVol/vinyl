@@ -39,7 +39,7 @@ export class StripeService {
       name: vinylDto.name,
       default_price_data: {
         currency: 'usd',
-        unit_amount: Math.ceil(+vinylDto.price * 100),
+        unit_amount: +(+vinylDto.price * 100).toFixed(2),
       },
     });
   }
@@ -51,7 +51,7 @@ export class StripeService {
     if (vinyl) {
       const price = await this.Stripe.prices.create({
         currency: 'usd',
-        unit_amount: +updateVinylDto.price * 100,
+        unit_amount: +(+updateVinylDto.price * 100).toFixed(2),
         product: vinyl.stripeProdId,
       });
 
