@@ -134,12 +134,12 @@ export class VinylsService {
     const result = vinyls.map((vinyl) => {
       let firstAnotherReview;
       if (vinyl.reviews[0]) {
+        firstAnotherReview = vinyl.reviews[0];
         if (user) {
           firstAnotherReview = vinyl.reviews.find(
             (review) => review.userId !== user._id,
           );
         }
-        firstAnotherReview = vinyl.reviews[0];
       }
 
       return { vinyl, firstAnotherReview };
