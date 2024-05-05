@@ -185,7 +185,7 @@ export class VinylsService {
 
     const stripeVinyl = await this.stripeService.updateStripeVinyl(vinyl, {
       name: recordData.name,
-      price: recordData.price,
+      price: Number(recordData.price).toFixed(2),
     });
 
     this.logModel.create({
