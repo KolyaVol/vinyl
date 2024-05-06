@@ -103,8 +103,8 @@ export class VinylsService {
     if ((await req).headers.authorization) {
       user = await this.usersSerivce.getUserFromReq(req);
     }
-    await this.updateAllDiscogsVinyls();
     const { orderBy, order, filterName, filterAuthor, limit, offset } = query;
+    await this.updateManyDiscogsVinyls(limit, offset);
 
     let filterSettings = {};
     if (user) {
@@ -209,8 +209,11 @@ export class VinylsService {
     );
   }
 
-  async updateAllDiscogsVinyls() {
-    const vinyls = await this.vinylModel.find({ discogProdId: { $ne: null } });
+  async updateManyDiscogsVinyls(limit: number = 10, offset: number = 0) {
+    const vinyls = await this.vinylModel
+      .find({ discogProdId: { $ne: null } })
+      .limit(+limit || 10)
+      .skip(+offset || 0);
     vinyls.forEach((vinyl: Vinyl) => {
       if (vinyl) {
         this.updateDiscogsVinyl(vinyl._id as unknown as ObjectId);
