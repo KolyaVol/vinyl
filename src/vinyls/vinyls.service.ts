@@ -230,8 +230,8 @@ export class VinylsService {
     return this.vinylModel.deleteOne({ _id: reqBody._id });
   }
 
-  async bueVinyl(req: Request, query: { userId: string; vinylId: string }) {
-    const user = await this.usersSerivce.findOneById(query.userId);
+  async bueVinyl(req: Request, query: { vinylId: string }) {
+    const user = await this.usersSerivce.getUserFromReq(req);
     const vinyl = await this.vinylModel.findOne({ _id: query.vinylId });
     if (user && vinyl) {
       return this.stripeService.createStripeCheckout(user, vinyl);
