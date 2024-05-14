@@ -136,7 +136,7 @@ export class UsersService {
       await this.stripeService.updateStripeUser(user, updateDto);
 
       this.logModel.create({
-        message: `User ${user.firstName}  ${user.lastName} updated at ${new Date()} with this Data: ${updateDto}`,
+        message: `User ${user.firstName}  ${user.lastName} updated at ${new Date()} with this Data: ${JSON.stringify(updateDto)}`,
       });
 
       return this.userModel.findOneAndUpdate(

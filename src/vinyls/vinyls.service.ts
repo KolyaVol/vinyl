@@ -156,7 +156,7 @@ export class VinylsService {
     );
 
     this.logModel.create({
-      message: `Vinyl with id ${updateVinylDto._id} updated at ${new Date()} with data: ${updateVinylDto}`,
+      message: `Vinyl with id ${updateVinylDto._id} updated at ${new Date()} with data: ${JSON.stringify(updateVinylDto)}`,
     });
 
     return this.vinylModel.findOneAndUpdate(
@@ -189,7 +189,7 @@ export class VinylsService {
     });
 
     this.logModel.create({
-      message: `Vinyl with id ${vinylId} updated at ${new Date()} with data: ${recordData}`,
+      message: `Vinyl with id ${vinylId} updated at ${new Date()} with data: ${JSON.stringify(recordData)}`,
     });
 
     return this.vinylModel.findOneAndUpdate(

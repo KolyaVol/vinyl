@@ -64,7 +64,8 @@ export class ReviewsService {
       user.save();
 
       this.logModel.create({
-        message: `User ${user.firstName}  ${user.lastName} create new review of ${vinyl.name} ${vinyl.author} at ${new Date()} with data: ${reviewDto}`,
+        message: `User ${user.firstName}  ${user.lastName} create new review of ${vinyl.name} ${vinyl.author} at ${new Date()} with data: 
+        ${JSON.stringify(reviewDto)}`,
       });
 
       return review;
@@ -104,7 +105,7 @@ export class ReviewsService {
       await vinyl.save();
 
       this.logModel.create({
-        message: `Review of ${vinyl.name} ${vinyl.author} was updated at ${new Date()} with data: ${updateReviewDto}`,
+        message: `Review of ${vinyl.name} ${vinyl.author} was updated at ${new Date()} with data: ${JSON.stringify(updateReviewDto)}`,
       });
 
       return this.reviewModel.findOneAndUpdate(
