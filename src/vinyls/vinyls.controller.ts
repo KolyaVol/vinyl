@@ -32,7 +32,7 @@ export class VinylsController {
     return this.vinylsService.createVinyl(vinylDto);
   }
 
-  @Post('/create/discog')
+  @Post('/create/discogs')
   @UseGuards(JwtAuthGuard, JwtWhiteGuard, RoleGuard)
   async createVinylFromDiscog(@Query() query: { recordId: string }) {
     return this.vinylsService.createVinylFromDiscog(query.recordId);
